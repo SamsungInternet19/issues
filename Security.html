@@ -1,0 +1,33 @@
+<body>
+<script>
+uploadFile = () => {
+frame = document.body.appendChild(document.createElement("iframe"));
+webkitRequestFileSystem(0, 1, fs => {
+fs.root.getFile("file", {create: true}, file_entry => {
+file_entry.file(file => {
+data = new FormData();
+data.append("file", file);
+frame.contentWindow.fetch("
+http://127.0.0.1:1/
+",
+{
+method: "post",
+body: data
+});
+// Delete the file to trigger an upload error.
+file_entry.remove(_ => _);
+frame.remove();
+uploadFile();
+});
+});
+});
+}
+worker_blob = new Blob(
+[`while (true) fetch("
+http://127.0.0.1:1/")`
+],
+{ type: "text/javascript" });
+worker = new Worker(URL.createObjectURL(worker_blob));
+uploadFile();
+</script>
+</body>
